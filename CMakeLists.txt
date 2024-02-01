@@ -19,7 +19,7 @@ endif()
 
 message(STATUS "Configuring HelloWorld publisher/subscriber example...")
 
-file(GLOB DDS_HELLOWORLD_SOURCES_CXX "*.cxx")
+file(GLOB DDS_HELLOWORLD_SOURCES_CXX "HelloWorldMsg*.cxx")
 
 
 add_custom_target(

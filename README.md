@@ -1,4 +1,10 @@
-# fastdds_demos
+# FAST DDS Demo
+
+Based on this tutorial: https://fast-dds.docs.eprosima.com/en/latest/fastdds/getting_started/simple_app/simple_app.html
+
+It demonstrates a realtime publisher / subscriber application.
+
+![alt tag](screenshot.png)
 
 ## Prereqisites
 
@@ -22,6 +28,7 @@ apt install fastddsgen fastdds-tools
 ```
 cmake .
 make
+```
 
 
 ## How to run

@@ -19,22 +19,20 @@ endif()
 
 message(STATUS "Configuring HelloWorld publisher/subscriber example...")
 
-file(GLOB DDS_HELLOWORLD_SOURCES_CXX "HelloWorldMsg*.cxx")
-
-
+# Create a library for the message
 add_custom_target(
     messages
     COMMAND fastddsgen HelloWorldMsg.idl
 )
+add_library(HellowWorldMsg STATIC HelloWorldMsg.cxx HelloWorldMsgPubSubTypes.cxx)
+add_dependencies(HellowWorldMsg messages)
 
-add_executable(DDSHelloWorldPublisher HelloWorldPublisher.cpp ${DDS_HELLOWORLD_SOURCES_CXX})
-add_dependencies(DDSHelloWorldPublisher messages)
+add_executable(DDSHelloWorldPublisher HelloWorldPublisher.cpp)
 
-target_link_libraries(DDSHelloWorldPublisher fastcdr fastrtps)
-
+target_link_libraries(DDSHelloWorldPublisher fastcdr fastrtps HellowWorldMsg)
 
 
-add_executable(DDSHelloWorldSubscriber HelloWorldSubscriber.cpp ${DDS_HELLOWORLD_SOURCES_CXX})
-add_dependencies(DDSHelloWorldSubscriber messages)
 
-target_link_libraries(DDSHelloWorldSubscriber fastrtps fastcdr)
+add_executable(DDSHelloWorldSubscriber HelloWorldSubscriber.cpp)
+
+target_link_libraries(DDSHelloWorldSubscriber fastcdr fastrtps HellowWorldMsg)

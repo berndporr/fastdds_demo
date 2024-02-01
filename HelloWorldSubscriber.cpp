@@ -37,13 +37,13 @@ class HelloWorldSubscriber
 {
 private:
 
-    DomainParticipant* participant_;
+    DomainParticipant* participant_ = nullptr;
 
-    Subscriber* subscriber_;
+    Subscriber* subscriber_ = nullptr;
 
-    DataReader* reader_;
+    DataReader* reader_ = nullptr;
 
-    Topic* topic_;
+    Topic* topic_ = nullptr;
 
     TypeSupport type_;
 
@@ -51,14 +51,9 @@ private:
     {
     public:
 
-        SubListener()
-            : samples_(0)
-        {
-        }
+        SubListener() {}
 
-        ~SubListener() override
-        {
-        }
+        ~SubListener() override {}
 
         void on_subscription_matched(
                 DataReader*,
@@ -79,37 +74,26 @@ private:
             }
         }
 
-        void on_data_available(
-                DataReader* reader) override
+	// callback
+        void on_data_available(DataReader* reader) override
         {
             SampleInfo info;
-            if (reader->take_next_sample(&hello_, &info) == ReturnCode_t::RETCODE_OK)
+	    HelloWorldMsg hello;
+            if (reader->take_next_sample(&hello, &info) == ReturnCode_t::RETCODE_OK)
             {
                 if (info.valid_data)
                 {
-                    samples_++;
-                    std::cout << "Message: " << hello_.message() << " with index: " << hello_.index()
+                    std::cout << "Message: " << hello.message() << " with index: " << hello.index()
                                 << " RECEIVED." << std::endl;
                 }
             }
         }
 
-        HelloWorldMsg hello_;
-
-        std::atomic_int samples_;
-
     } listener_;
 
 public:
 
-    HelloWorldSubscriber()
-        : participant_(nullptr)
-        , subscriber_(nullptr)
-        , topic_(nullptr)
-        , reader_(nullptr)
-        , type_(new HelloWorldMsgPubSubType())
-    {
-    }
+    HelloWorldSubscriber() : type_(new HelloWorldMsgPubSubType()) {}
 
     virtual ~HelloWorldSubscriber()
     {
@@ -171,30 +155,23 @@ public:
         return true;
     }
 
-    //!Run the Subscriber
-    void run(
-        uint32_t samples)
-    {
-        while(listener_.samples_ < samples)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
-    }
 };
 
 int main(
-        int argc,
-        char** argv)
+        int,
+        char**)
 {
-    std::cout << "Starting subscriber." << std::endl;
-    uint32_t samples = 10;
+    std::cout << "Starting subscriber. Press any key to stop it." << std::endl;
 
-    HelloWorldSubscriber* mysub = new HelloWorldSubscriber();
-    if(mysub->init())
+    HelloWorldSubscriber mysub;
+    if(!mysub.init())
     {
-        mysub->run(samples);
+	std::cerr << "Could not init the subscriber." << std::endl;
+	return -1;
     }
 
-    delete mysub;
+    // do nothing here
+    getchar();
+
     return 0;
 }

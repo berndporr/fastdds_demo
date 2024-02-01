@@ -17,7 +17,7 @@
  *
  */
 
-#include "HelloWorldPubSubTypes.h"
+#include "HelloWorldMsgPubSubTypes.h"
 
 #include <chrono>
 #include <thread>
@@ -85,7 +85,7 @@ private:
 
 public:
 
-    HelloWorldPublisher() : type_(new HelloWorldPubSubType()) {}
+    HelloWorldPublisher() : type_(new HelloWorldMsgPubSubType()) {}
 
     virtual ~HelloWorldPublisher()
     {
@@ -120,7 +120,8 @@ public:
         type_.register_type(participant_);
 
         // Create the publications Topic
-        topic_ = participant_->create_topic("HelloWorldTopic", "HelloWorld", TOPIC_QOS_DEFAULT);
+	// !! Important that this matches with the name of message defined in HelloWorldMsg.idl !!
+        topic_ = participant_->create_topic("HelloWorldTopic", "HelloWorldMsg", TOPIC_QOS_DEFAULT);
 
         if (topic_ == nullptr)
         {
@@ -146,7 +147,7 @@ public:
     }
 
     //!Send a publication
-    bool publish(HelloWorld& hello)
+    bool publish(HelloWorldMsg& hello)
     {
         if (listener_.matched_ > 0)
         {
@@ -175,7 +176,7 @@ int main(
     
     //!Run the Publisher
     // message
-    HelloWorld hello;
+    HelloWorldMsg hello;
     hello.message("Hullo!");
     uint32_t samples_sent = 0;
     while (samples_sent < samples)

@@ -17,10 +17,22 @@ Fast DDS tools
 apt install fastddsgen fastdds-tools
 ```
 
+## How to compile
+
+```
+cmake .
+make
+
+
 ## How to run
 
-Generate the source code which generates the source code of the message defined in `HelloWorld.idl`:
+Open a terminal and type
 ```
-fastddsgen HelloWorld.idl
+./DDSHelloWorldPublisher
 ```
 
+Open another terminal and type
+
+```
+./DDSHelloWorldSubscriber
+```

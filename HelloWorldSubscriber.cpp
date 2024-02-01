@@ -17,7 +17,7 @@
  *
  */
 
-#include "HelloWorldPubSubTypes.h"
+#include "HelloWorldMsgPubSubTypes.h"
 
 #include <chrono>
 #include <thread>
@@ -94,7 +94,7 @@ private:
             }
         }
 
-        HelloWorld hello_;
+        HelloWorldMsg hello_;
 
         std::atomic_int samples_;
 
@@ -107,7 +107,7 @@ public:
         , subscriber_(nullptr)
         , topic_(nullptr)
         , reader_(nullptr)
-        , type_(new HelloWorldPubSubType())
+        , type_(new HelloWorldMsgPubSubType())
     {
     }
 
@@ -144,7 +144,8 @@ public:
         type_.register_type(participant_);
 
         // Create the subscriptions Topic
-        topic_ = participant_->create_topic("HelloWorldTopic", "HelloWorld", TOPIC_QOS_DEFAULT);
+	// !! Important that this matches with the name of message defined in HelloWorldMsg.idl !!
+        topic_ = participant_->create_topic("HelloWorldTopic", "HelloWorldMsg", TOPIC_QOS_DEFAULT);
 
         if (topic_ == nullptr)
         {

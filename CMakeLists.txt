@@ -21,12 +21,20 @@ message(STATUS "Configuring HelloWorld publisher/subscriber example...")
 
 file(GLOB DDS_HELLOWORLD_SOURCES_CXX "*.cxx")
 
+
+add_custom_target(
+    messages
+    COMMAND fastddsgen HelloWorldMsg.idl
+)
+
 add_executable(DDSHelloWorldPublisher HelloWorldPublisher.cpp ${DDS_HELLOWORLD_SOURCES_CXX})
+add_dependencies(DDSHelloWorldPublisher messages)
 
 target_link_libraries(DDSHelloWorldPublisher fastcdr fastrtps)
 
 
 
 add_executable(DDSHelloWorldSubscriber HelloWorldSubscriber.cpp ${DDS_HELLOWORLD_SOURCES_CXX})
+add_dependencies(DDSHelloWorldSubscriber messages)
 
 target_link_libraries(DDSHelloWorldSubscriber fastrtps fastcdr)

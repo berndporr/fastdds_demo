@@ -35,15 +35,13 @@ class HelloWorldPublisher
 {
 private:
 
-    HelloWorld hello_;
+    DomainParticipant* participant_ = nullptr;
 
-    DomainParticipant* participant_;
+    Publisher* publisher_ = nullptr;
 
-    Publisher* publisher_;
+    Topic* topic_ = nullptr;
 
-    Topic* topic_;
-
-    DataWriter* writer_;
+    DataWriter* writer_ = nullptr;
 
     TypeSupport type_;
 
@@ -87,14 +85,7 @@ private:
 
 public:
 
-    HelloWorldPublisher()
-        : participant_(nullptr)
-        , publisher_(nullptr)
-        , topic_(nullptr)
-        , writer_(nullptr)
-        , type_(new HelloWorldPubSubType())
-    {
-    }
+    HelloWorldPublisher() : type_(new HelloWorldPubSubType()) {}
 
     virtual ~HelloWorldPublisher()
     {
@@ -116,9 +107,6 @@ public:
     //!Initialize the publisher
     bool init()
     {
-        hello_.index(0);
-        hello_.message("HelloWorld");
-
         DomainParticipantQos participantQos;
         participantQos.name("Participant_publisher");
         participant_ = DomainParticipantFactory::get_instance()->create_participant(0, participantQos);
@@ -158,48 +146,51 @@ public:
     }
 
     //!Send a publication
-    bool publish()
+    bool publish(HelloWorld& hello)
     {
         if (listener_.matched_ > 0)
         {
-            hello_.index(hello_.index() + 1);
-            writer_->write(&hello_);
+            writer_->write(&hello);
             return true;
         }
         return false;
     }
 
-    //!Run the Publisher
-    void run(
-            uint32_t samples)
-    {
-        uint32_t samples_sent = 0;
-        while (samples_sent < samples)
-        {
-            if (publish())
-            {
-                samples_sent++;
-                std::cout << "Message: " << hello_.message() << " with index: " << hello_.index()
-                            << " SENT" << std::endl;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        }
-    }
 };
 
 int main(
-        int argc,
-        char** argv)
+        int,
+        char**)
 {
     std::cout << "Starting publisher." << std::endl;
     uint32_t samples = 10;
 
-    HelloWorldPublisher* mypub = new HelloWorldPublisher();
-    if(mypub->init())
+    HelloWorldPublisher mypub;
+
+    if(!mypub.init())
     {
-        mypub->run(samples);
+	std::cerr << "Pub not init'd." << std::endl;
+	return -1;
+    }
+    
+    //!Run the Publisher
+    // message
+    HelloWorld hello;
+    hello.message("Hullo!");
+    uint32_t samples_sent = 0;
+    while (samples_sent < samples)
+    {
+	if (mypub.publish(hello))
+	{
+	    samples_sent++;
+	    hello.index(samples_sent);
+	    std::cout << "Message: " << hello.message() << " with index: " << hello.index()
+		      << " SENT" << std::endl;
+	} else {
+	    std::cout << "No messages sent as there is no listener." << std::endl;
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    delete mypub;
     return 0;
 }

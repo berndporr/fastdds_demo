@@ -1,4 +1,5 @@
 // Copyright 2016 Proyectos y Sistemas de Mantenimiento SL (eProsima).
+// Copyright 2025 Bernd Porr
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +29,7 @@
 #include <fastdds/dds/publisher/DataWriterListener.hpp>
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <fastdds/dds/topic/TypeSupport.hpp>
+#include "CppTimer.h"
 
 using namespace eprosima::fastdds::dds;
 
@@ -159,39 +161,46 @@ public:
 
 };
 
-int main(
-        int,
-        char**)
-{
-    std::cout << "Starting publisher." << std::endl;
-    uint32_t samples = 10;
 
+class EventEmitter : public CppTimer {
+
+public:
     HelloWorldPublisher mypub;
-
-    if(!mypub.init())
-    {
-	std::cerr << "Pub not init'd." << std::endl;
-	return -1;
-    }
+    uint32_t samples_sent = 1;
     
-    //!Run the Publisher
-    // message
-    HelloWorldMsg hello;
-    hello.message("Hullo!");
-    uint32_t samples_sent = 0;
-    while (samples_sent < samples)
-    {
+    void timerEvent() {
+	HelloWorldMsg hello;
+	hello.message("Hullo!");
+	hello.index(samples_sent);
 	if (mypub.publish(hello))
 	{
-	    samples_sent++;
-	    hello.index(samples_sent);
 	    std::cout << "Message: " << hello.message() << " with index: " << hello.index()
 		      << " SENT" << std::endl;
+	    samples_sent++;
 	} else {
 	    std::cout << "No messages sent as there is no listener." << std::endl;
 	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
-    return 0;
+    void start() {
+	std::cout << "Starting publisher." << std::endl;
+
+	if(!mypub.init())
+	{
+	    std::cerr << "Pub not init'd." << std::endl;
+	    return;
+	}
+        startms(1000);
+    }
+
+};
+
+int main(
+    int,
+    char**)
+{
+    EventEmitter ee;
+    ee.start();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    ee.stop();
 }
